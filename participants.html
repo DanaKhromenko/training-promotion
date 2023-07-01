@@ -1,0 +1,29 @@
+{{ define "body" }}
+<div class="text-center p-2">
+    <h2>Вот список людей, которых ты можешь встретить на марафоне:</h2>
+    <table class="table table-bordered table-striped table-sm">
+        <thead>
+            <tr><th>Имя</th><th>Тренировка</th><th>Клиент клуба</th></tr>
+        </thead>
+        <tbody>
+            {{ range . }}
+            <tr>
+                <td>{{ .Name }}</td>
+                <td>{{ .TrainingDate }}</td>
+                <td>{{ if .AlreadyClient }} Да {{ else }} Ещё нет {{ end }}</td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+
+    <button class="btn btn-secondary mt-3" type="button" onclick="goToHomePage()">
+        На главную
+    </button>
+
+    <script>
+        function goToHomePage() {
+            window.location.href = "/";
+        }
+    </script>
+</div>
+{{ end }}
