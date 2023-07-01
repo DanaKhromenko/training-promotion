@@ -17,9 +17,8 @@ var templates = make(map[string]*template.Template, 3)
 func loadTemplates() {
 	templateNames := [5]string{"main-page", "registration-form", "training-confirmed", "training-rejected", "participants"}
 	for _, name := range templateNames {
-		t, err := template.ParseFiles("layout.html", name+".html")
-		if err == nil {
-			templates[name] = t
+		if parsedTemplate, err := template.ParseFiles("layout.html", name+".html"); err == nil {
+			templates[name] = parsedTemplate
 		} else {
 			panic(err)
 		}
@@ -54,11 +53,8 @@ func registrationFormHandler(writer http.ResponseWriter, request *http.Request) 
 			AlreadyClient: request.Form["already-client"][0] == "true",
 		}
 
-		errors := getValidationErrors(clientInfo)
-		if len(errors) > 0 {
-			templates["registration-form"].Execute(writer, ClientInfoFormData{
-				ClientInfo: &clientInfo, Errors: errors,
-			})
+		if errors := getValidationErrors(clientInfo); len(errors) > 0 {
+			templates["registration-form"].Execute(writer, ClientInfoFormData{ClientInfo: &clientInfo, Errors: errors})
 		} else {
 			saveClientTraining(&clientInfo)
 			templates["training-confirmed"].Execute(writer, clientInfo.Name)
@@ -71,9 +67,7 @@ func saveClientTraining(clientInfo *ClientInfo) {
 }
 
 func trainingRejectedFormHandler(writer http.ResponseWriter, request *http.Request) {
-	templates["training-rejected"].Execute(writer, ClientInfoFormData{
-		ClientInfo: &ClientInfo{}, Errors: []string{},
-	})
+	templates["training-rejected"].Execute(writer, ClientInfoFormData{ClientInfo: &ClientInfo{}, Errors: []string{}})
 }
 
 func cleanString(str string) string {
@@ -112,8 +106,7 @@ func main() {
 	http.HandleFunc("/training-rejected", trainingRejectedFormHandler)
 	http.HandleFunc("/participants", participantsHandler)
 
-	err := http.ListenAndServe(":8008", nil)
-	if err != nil {
+	if err := http.ListenAndServe(":8008", nil); err != nil {
 		panic(err)
 	}
 }
